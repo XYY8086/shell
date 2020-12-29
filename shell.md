@@ -1,4 +1,6 @@
 ### Shell
+- [菜鸟教程](https://www.runoob.com/linux/linux-shell.html)
+- [Shell编程进阶](https://www.cnblogs.com/clsn/p/8028337.html)
 #### 0. Shell简介
 Shell种类：
 - Bourne Shell(/bin/sh | /usr/bin/sh)
@@ -174,3 +176,117 @@ do
     com...
 done
 ```
+具有C语言格式的shell for循环,在循环的初始化列表中对于变量可以不使用 **\$**
+```shell
+n=10
+for((i=0;i<n;i++)); do
+    echo "$i"
+done
+```
+##### 7.3 while
+```shell
+while condition
+do
+    command
+done
+```
+```shell
+#!/bin/sh
+num1=$1
+while test $((num1)) -gt 10
+do
+    echo $((num1))
+    let "num1 = num1 - 1"
+done
+```
+注：until循环，直到条件为真时退出循环。结构与while相同
+
+##### 7.4 case
+```shell
+case valx in
+val1)
+    command1
+    ;;
+val2)
+    command2
+    ;;
+*)
+    command_else
+esac
+```
+跳出循环：break,continue
+
+#### 8. Shell函数
+```shell
+#!/bin/sh
+function name () {
+    echo "$1" # arguments are accessible through name, echo "$1" # arguments are accessible through , ,...,...
+    return "$2"
+}
+name 10 300
+echo $?   
+```
+- 函数定义
+```shell
+function fcnname(){
+    function body
+    return val
+}
+```
+- 函数参数
+$i 表示调用函数时传入的第i个参数，当i>10时 ${i}表示
+- 函数调用
+fcnname arg1 arg2 ...
+- 函数的返回值
+shell函数的返回值只能是0-255之间的整数，紧跟着使用 **$?**接收函数执行的结果
+
+#### 9.输入输出重定向
+**一般情况下，linux指令执行时会打开三个文件，标准输入文件(文件描述符为0)：STDIN，标准输出文件(文件描述符为1)：STDOUT,标准错误文件(文件描述符为2):STDERR。**
+命令的执行过程：首先命令会从stdin中读入，执行之后将输出stdout中.多数情况下，默认的标准输入和输出都是终端。
+
+| 命令      |   说明 |
+| :----:    | :----: |
+| command > file|输出重定向到file(覆盖)|
+| command >> file|输出重定向到file(追加)|
+|command < file|将输入重定向到file|
+|n > file|将文件描述符为n的文件重定向到file(>>追加)|
+|n >& m|将输出文件m和n合并|
+|n <& m|将输入文件m和n合并|
+|<<tag |将开始标记和结束标记为tag之间的内容作为输入|
+注：文件描述符0:STDIN,1:STDOUT,2:STDERR.
+```
+----t.txt content----
+hello
+world
+---- 1.输入重定向 ----
+wc -l < t.txt
+输出：2
+---- 2.输入输出重定向----
+wc -l <t.txt >> t.txt
+将统计结果再输入到t.txt
+---- 3.错误重定向----
+ls | pdd 2 >> t.txt
+查看t.txt:
+bash: pdd: command not found
+---- 4.输出和错误重定向----
+wc -l t.txt >>file 2&1
+将t.txt文件的统计行数写入到file文件，同时将错误信息页写入到file 
+```
+Here Doucument输入重定向
+- 以交互式脚本形式重定向输入，交互式脚本以开始和结束标识符进行标记
+    ```shell
+    command <<EOF
+    content...
+    EOF
+    #注：结尾的EOF必须顶格写，后面不能有字符(包括空格和制表)
+    ```
+/dev/null文件
+执行某个命令，但是不显示执行结果。`command > /dev/null 2>&1`
+**注意：** '2>'之间不能有空格
+#### 10. 文件包含
+包含外部脚本
+- . filename
+.和filename之间必须有一个空格
+- source filename
+例如：test2.sh中定义了函数name,想在test.sh中使用，`source ./test2.sh` 或是`. ./test2.sh`即可。
+
